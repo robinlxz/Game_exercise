@@ -20,18 +20,25 @@ PADDLE_SPEED = 200
 -- OOP
 Class = require 'class'
 require 'Paddle'
+require 'Ball'
 
 function love.load()
   love.graphics.setDefaultFilter('nearest', 'nearest')
+
+  math.randomseed(os.time())
+
   push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
     fullscreen = false,
     resizable = false,
     vsync = true
   })
 
-  -- paddleX = VIRTUAL_WIDTH/2-15
   paddleX = Paddle(VIRTUAL_WIDTH/2-15, VIRTUAL_HEIGHT-10, 30, 5)
   paddleY = Paddle(VIRTUAL_WIDTH/2-25, VIRTUAL_HEIGHT-200, 20, 5)
+
+  ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
+
+  gameState = 'start'
 end
 
 
@@ -56,6 +63,10 @@ function love.update(dt)
     paddleY.dx = 0
   end
 
+  if gameState == 'play' then
+    ball:update(dt)
+  end
+
   paddleX:update(dt)
   paddleY:update(dt)
 
@@ -66,6 +77,13 @@ function love.keypressed(key)
   -- quit game
   if key == 'escape' then
     love.event.quit()
+  elseif key == 'enter' or key == 'return' then
+    if gameState == 'start' then
+      gameState = 'play'
+    else
+      gameState = 'start'
+      ball:reset()
+    end
   end
 end
 
@@ -81,9 +99,10 @@ function love.draw()
   -- love.graphics.rectangle('fill', paddleX, VIRTUAL_HEIGHT-10, 30, 5)
   paddleX:render()
   paddleY:render()
+  ball:render()
 
   -- ball
-  love.graphics.rectangle('fill', VIRTUAL_WIDTH/2-2, VIRTUAL_HEIGHT/2-2, 4, 4)
+  -- love.graphics.rectangle('fill', VIRTUAL_WIDTH/2-2, VIRTUAL_HEIGHT/2-2, 4, 4)
 
   push:apply('end')
 end
