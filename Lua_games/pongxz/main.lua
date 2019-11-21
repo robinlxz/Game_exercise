@@ -44,6 +44,40 @@ end
 
 
 function love.update(dt)
+  -- collision
+  -- Question: why error when if ball:c(X) or ball:c(Y)? Error: Ball.lua:46: attempt to index local 'paddle' (a nil value)
+  if ball:collides(paddleX) then
+    if ball.y + ball.height > paddleX.y then
+      ball.y = paddleX.y - ball.height
+    end
+    ball.dy = -ball.dy*1.04
+    -- add random for paddleX
+    ball.dx = ball.dx + math.random(-10,10)
+
+    -- paddleX.release()
+  end
+
+  if ball:collides(paddleY) then
+    ball.dy = -ball.dy*1.04
+    -- add more random for paddleY
+    ball.dx = ball.dx + math.random(-40,40)
+  end
+
+  -- bounce the left and right wall
+  if ball.x <= 0 then
+    ball.x = 0
+    ball.dx = -ball.dx
+  elseif ball.x + ball.width >= VIRTUAL_WIDTH then
+    ball.x = VIRTUAL_WIDTH - ball.width
+    ball.dx = -ball.dx
+  end
+
+  -- bounce the top wall for brick knock game #brick-knock
+  -- if ball.y <=0 then
+  --   ball.y =0
+  --   ball.dy = -ball.dy
+  -- end
+
   if love.keyboard.isDown('left') then
     -- paddleX = paddleX + -PADDLE_SPEED * dt
     paddleX.dx = -PADDLE_SPEED
@@ -70,6 +104,7 @@ function love.update(dt)
   paddleX:update(dt)
   paddleY:update(dt)
 
+
 end
 
 
@@ -93,16 +128,20 @@ function love.draw()
   love.graphics.clear(160/255, 80/255, 0/255, 255/255)
 
   -- game title
+  love.graphics.setFont(love.graphics.newFont(16))
   love.graphics.printf('Bricks!', 0, 20, VIRTUAL_WIDTH, 'center')
 
-  -- paddle
-  -- love.graphics.rectangle('fill', paddleX, VIRTUAL_HEIGHT-10, 30, 5)
   paddleX:render()
   paddleY:render()
   ball:render()
 
-  -- ball
-  -- love.graphics.rectangle('fill', VIRTUAL_WIDTH/2-2, VIRTUAL_HEIGHT/2-2, 4, 4)
+  displayFPS()
 
   push:apply('end')
+end
+
+function displayFPS()
+  love.graphics.setFont(love.graphics.newFont(8))
+  love.graphics.setColor(0,255,0,255)
+  love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
 end
