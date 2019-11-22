@@ -39,6 +39,13 @@ function love.load()
   ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
 
   gameState = 'start'
+
+  -- setup sound effects
+  sound = {
+    ['paddle_hit'] = love.audio.newSource('sounds/paddle_hit.wav','static'),
+    ['score'] = love.audio.newSource('sounds/score.wav', 'static'),
+    ['wall_hit'] = love.audio.newSource('sounds/wall_hit.wav', 'static')
+  }
 end
 
 
@@ -54,28 +61,36 @@ function love.update(dt)
     -- add random for paddleX
     ball.dx = ball.dx + math.random(-10,10)
 
+    sound['paddle_hit']:play()
+
     -- paddleX.release()
   end
 
   if ball:collides(paddleY) then
+    ball.y = paddleY.y + paddleY.height
     ball.dy = -ball.dy*1.04
     -- add more random for paddleY
     ball.dx = ball.dx + math.random(-40,40)
+
+    sound['paddle_hit']:play()
   end
 
   -- bounce the left and right wall
   if ball.x <= 0 then
     ball.x = 0
     ball.dx = -ball.dx
+    sound['wall_hit']:play()
   elseif ball.x + ball.width >= VIRTUAL_WIDTH then
     ball.x = VIRTUAL_WIDTH - ball.width
     ball.dx = -ball.dx
+    sound['wall_hit']:play()
   end
 
   -- bounce the top wall for brick knock game #brick-knock
   -- if ball.y <=0 then
   --   ball.y =0
   --   ball.dy = -ball.dy
+  --   sound['wall_hit']:play()
   -- end
 
   if love.keyboard.isDown('left') then
